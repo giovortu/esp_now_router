@@ -68,9 +68,10 @@ while True:
         print("Current Epoch Time (in seconds):", current_epoch_time)
 
         id = json_data["id"];
+        type="NONE"
         if "type" in json_data:
            type = json_data["type"]
-           if type == "agri":
+        if type == "agri":
               temp = json_data["temp"]
               soil = json_data["soil"]
               lum  = json_data["lum"]
@@ -109,7 +110,8 @@ while True:
               command = f"{{\"value\":{hum},\"type\":\"humidity\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-           else: #HOME ASSISTANT ONLY
+
+        else: #HOME ASSISTANT ONLY
               command =  json_data["command"]
 
               #"{\"id\":\"bagno\",\"command\":\"toggle\"}"
