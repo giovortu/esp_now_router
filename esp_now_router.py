@@ -52,7 +52,6 @@ mqtt_client.publish("LOG", "Connected" )
 # Open serial port
 ser = serial.Serial(serial_port, baud_rate)
 
-SENSORS_TOPIC = "homeassistant/sensors"
 
 while True:
     try:
