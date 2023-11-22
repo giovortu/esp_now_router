@@ -8,10 +8,16 @@ import time
 # Get the current epoch time in seconds
 current_epoch_time = int(time.time())
 
-print("Current Epoch Time (in seconds):", current_epoch_time)
+# Convert epoch time to a datetime object
+datetime_object = datetime.utcfromtimestamp(current_epoch_time)
+
+# Format the datetime object as a string in the desired format
+formatted_time = datetime_object.strftime("%d/%m/%Y %H:%M:%S")
+
+print("Started at: ", formatted_time)
 
 
-# Serial port configuration
+# Serial port configuration ( RASPBERRY )
 serial_port = "/dev/ttyS0"
 baud_rate = 115200
 
@@ -43,11 +49,11 @@ SENSORS_TOPIC = "homeassistant/sensors"
 
 while True:
     try:
-
         # Read JSON data from serial port
         serial_data = ser.readline().decode('utf-8').strip()
         clean_data = serial_data.replace('\r', '').replace('\n', '').replace("Received ","")
         print( "Clean data" , clean_data )
+
         # Parse JSON data
         json_data = json.loads( clean_data )
         command = ""
