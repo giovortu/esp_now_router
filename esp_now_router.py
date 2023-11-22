@@ -43,6 +43,7 @@ SENSORS_TOPIC = "/ufficio28/acquario/sensors/"
 
 while True:
     try:
+
         # Read JSON data from serial port
         serial_data = ser.readline().decode('utf-8').strip()
         clean_data = serial_data.replace('\r', '').replace('\n', '').replace("Received ","")
@@ -50,6 +51,9 @@ while True:
         # Parse JSON data
         json_data = json.loads( clean_data )
         command = ""
+
+        current_epoch_time = int(time.time())
+        print("Current Epoch Time (in seconds):", current_epoch_time)
 
         id = json_data["id"];
         if "type" in json_data:
