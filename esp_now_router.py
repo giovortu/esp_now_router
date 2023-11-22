@@ -93,19 +93,19 @@ while True:
               command = f"{{\"value\":{lum},\"type\":\"luminosity\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  USE_TOPIC + id + "/temperature"
+              topic =  USE_TOPIC + "/temperature"
               command = f"{{\"value\":{temp},\"type\":\"temperature\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  USE_TOPIC + id + "/soil_moisture"
+              topic =  USE_TOPIC + "/soil_moisture"
               command = f"{{\"value\":{soil},\"type\":\"soil\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  USE_TOPIC + id + "/battery_level"
+              topic =  USE_TOPIC + "/battery_level"
               command = f"{{\"value\":{batt_lvl},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  USE_TOPIC + id + "/humidity"
+              topic =  USE_TOPIC + "/humidity"
               command = f"{{\"value\":{hum},\"type\":\"humidity\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
