@@ -15,20 +15,13 @@ formatted_time = datetime_object.strftime("%d/%m/%Y %H:%M:%S")
 
 print("Started at: ", formatted_time)
 
-def is_jetson_nano():
-    return os.path.isfile('/etc/nv_tegra_release')
 
-print( os.path.isfile('/etc/nv_tegra_release') )
-
-# Serial port configuration 
-if is_jetson_nano():
-    serial_port = "/dev/ttyS0" # RASPBERRY
-else:
-    serial_port = "/dev/ttyTHS1" # JETSON NANO
 
 # MQTT configuration
 mqtt_broker = "127.0.0.1"
 
+def is_jetson_nano():
+    return os.path.isfile('/etc/nv_tegra_release')
 
 
 def on_connect(client, userdata, flags, rc):
@@ -49,6 +42,11 @@ mqtt_client.connect(mqtt_broker, 1883, 60)
 mqtt_client.loop_start()
 
 
+# Serial port configuration 
+if is_jetson_nano():
+    serial_port = "/dev/ttyTHS1" # JETSON NANO    
+else:
+    serial_port = "/dev/ttyS0" # RASPBERRY
 
 baud_rate = 115200
 
