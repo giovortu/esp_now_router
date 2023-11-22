@@ -39,7 +39,7 @@ mqtt_client.loop_start()
 # Open serial port
 ser = serial.Serial(serial_port, baud_rate)
 
-SENSORS_TOPIC = "/ufficio28/acquario/sensors/"
+SENSORS_TOPIC = "homeassistant/sensors"
 
 while True:
     try:
@@ -68,27 +68,27 @@ while True:
               hum = json_data["hum"]
               usb = str( json_data["usb"] ).lower()
 
-              topic =  SENSORS_TOPIC + "is_battery_charging"
+              topic =  SENSORS_TOPIC + "/" + id + "/is_battery_charging"
               command = f"{{\"value\":{usb},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  SENSORS_TOPIC + "luminosity"
+              topic =  SENSORS_TOPIC + "/" + id + "/luminosity"
               command = f"{{\"value\":{lum},\"type\":\"luminosity\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  SENSORS_TOPIC + "temperature"
+              topic =  SENSORS_TOPIC + "/" + id + "/temperature"
               command = f"{{\"value\":{temp},\"type\":\"temperature\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  SENSORS_TOPIC + "soil_moisture"
+              topic =  SENSORS_TOPIC + "/" + id + "/soil_moisture"
               command = f"{{\"value\":{soil},\"type\":\"soil\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  SENSORS_TOPIC + "battery_level"
+              topic =  SENSORS_TOPIC + "/" + id + "/battery_level"
               command = f"{{\"value\":{batt_lvl},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  SENSORS_TOPIC + "humidity"
+              topic =  SENSORS_TOPIC + "/" + id + "/humidity"
               command = f"{{\"value\":{hum},\"type\":\"humidity\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
