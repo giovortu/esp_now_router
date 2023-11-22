@@ -32,7 +32,7 @@ def on_publish(client, userdata, mid):
 if is_jetson_nano():
     mqtt_broker = "10.0.128.128"
     serial_port = "/dev/ttyTHS1" # JETSON NANO 
-    SENSORS_TOPIC = "/ufficio28/acquario/sensors/"
+    SENSORS_TOPIC = "/ufficio28/acquario/sensors"
 else:
     mqtt_broker = "127.0.0.1"
     serial_port = "/dev/ttyS0" # RASPBERRY
