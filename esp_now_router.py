@@ -48,7 +48,7 @@ mqtt_client.on_publish = on_publish
 mqtt_client.connect(mqtt_broker, 1883, 60)
 mqtt_client.loop_start()
 
-
+mqtt_client.publish("LOG", "Connected" )
 # Open serial port
 ser = serial.Serial(serial_port, baud_rate)
 
