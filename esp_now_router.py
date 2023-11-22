@@ -16,13 +16,7 @@ formatted_time = datetime_object.strftime("%d/%m/%Y %H:%M:%S")
 print("Started at: ", formatted_time)
 
 
-# Serial port configuration 
-if is_jetson_nano():
-    serial_port = "/dev/ttyS0" # RASPBERRY
-else:
-    serial_port = "/dev/ttyTHS1" # JETSON NANO
 
-baud_rate = 115200
 
 # MQTT configuration
 mqtt_broker = "127.0.0.1"
@@ -46,6 +40,14 @@ mqtt_client.on_publish = on_publish
 # Connect to MQTT Broker
 mqtt_client.connect(mqtt_broker, 1883, 60)
 mqtt_client.loop_start()
+
+# Serial port configuration 
+if is_jetson_nano():
+    serial_port = "/dev/ttyS0" # RASPBERRY
+else:
+    serial_port = "/dev/ttyTHS1" # JETSON NANO
+
+baud_rate = 115200
 
 # Open serial port
 ser = serial.Serial(serial_port, baud_rate)
