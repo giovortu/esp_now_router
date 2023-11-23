@@ -38,7 +38,7 @@ baud_rate = 115200
 # Create MQTT client
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
-mqtt_client.on_publish = on_publish
+#mqtt_client.on_publish = on_publish
 # Connect to MQTT Broker
 mqtt_client.connect(mqtt_broker, 1883, 60)
 mqtt_client.loop_start()
