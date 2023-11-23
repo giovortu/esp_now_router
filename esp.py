@@ -1,8 +1,10 @@
 import serial, os, json
 import paho.mqtt.client as mqtt
 from datetime import datetime
-
+import struct
 import time
+import base64
+
 
 # Get the current epoch time in seconds
 current_epoch_time = int(time.time())
@@ -26,7 +28,7 @@ def on_connect(client, userdata, flags, rc):
         print(f"Connection to MQTT Broker failed with code {rc}")
 
 def on_publish(client, userdata, mid):
-    print(f"Message {mid} Published")
+    print(f"Message {userdata} Published")
 
 # MQTT configuration & serial port configuration 
 mqtt_broker = "10.0.128.128"
@@ -38,7 +40,7 @@ baud_rate = 115200
 # Create MQTT client
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
-mqtt_client.on_publish = on_publish
+#mqtt_client.on_publish = on_publish
 # Connect to MQTT Broker
 mqtt_client.connect(mqtt_broker, 1883, 60)
 mqtt_client.loop_start()
@@ -50,36 +52,54 @@ ser = serial.Serial(serial_port, baud_rate)
 
 while True:
     try:
-        # Read JSON data from serial port
-        serial_data = ser.readline().decode('utf-8').strip()
-        clean_data = serial_data.replace('\r', '').replace('\n', '').replace("Received ","")
-        print( "Clean data" , clean_data )
 
-        # Parse JSON data
-        json_data = json.loads( clean_data )
-        command = ""
+        #Read HEADER ( C sizeof message_struct )
+        encoded_data = ser.readline( ).strip()
+        if len( encoded_data ) == 0:
+           continue
 
         current_epoch_time = int(time.time())
         print("Current Epoch Time (in seconds):", current_epoch_time)
 
-        id = json_data["id"];
-        type="NONE"
-        if "type" in json_data:
-           type = json_data["type"]
-        if type == "agri":
-              temp = json_data["temp"]
-              soil = json_data["soil"]
-              lum  = json_data["lum"]
-              batt_volt = json_data["bv"]
-              batt_lvl = json_data["bl"]
-              charge = json_data["charge"]
-              hum = json_data["hum"]
-              usb = str( json_data["usb"] ).lower()
+        raw_data = base64.b64decode(encoded_data)
+        #print( raw_data )
 
-              USE_TOPIC = SENSORS_TOPIC + "/" + id
+        format_string = '20sB'
+
+        id_str, type_byte = struct.unpack(format_string, raw_data[:struct.calcsize(format_string)])
+
+        id_str = id_str.decode('utf-8')
+        print( id_str )
+        print( type_byte )
+
+        data_bytes = raw_data[struct.calcsize(format_string):]
+        #print( data_bytes )
+
+        if type_byte == 0:   # Define the format string for agrumino_data
+              print("decoding agrumino" )
+
+#              agrumino_format_string = '??'
+              agrumino_format_string = 'fIffI??'
+
+              temp, soil, lum, batt_volt, batt_lvl, usb_conn, charging = struct.unpack(agrumino_format_string, data_bytes[:struct.calcsize( agrumino_format_string )] )
+
+              print ( temp, soil, lum, batt_volt, batt_lvl, usb_conn, charging )
+
+              hum = 22
+
+              if is_jetson_nano():
+                  USE_TOPIC = SENSORS_TOPIC
+              else:
+                  USE_TOPIC = SENSORS_TOPIC + "/" + id
+
+              charging= "true" if charging != 0 else "false"
 
               topic =  USE_TOPIC + "/is_battery_charging"
-              command = f"{{\"value\":{usb},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
+              command = f"{{\"value\":{charging},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
+              mqtt_client.publish(topic, command )
+
+              topic =  USE_TOPIC + "/is_usb_attached"
+              command = f"{{\"value\":{usb_conn},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
               topic =  USE_TOPIC + "/luminosity"
@@ -104,12 +124,11 @@ while True:
 
 
         else: #HOME ASSISTANT ONLY
-              command =  json_data["command"]
-
               #"{\"id\":\"bagno\",\"command\":\"toggle\"}"
-              topic =  "homeassistant/light/" + id + "/set"
-              mqtt_client.publish(topic, command )
-              print("Data published to MQTT:", json_data)
+              #topic =  "homeassistant/light/" + id + "/set"
+              #mqtt_client.publish(topic, command )
+              #print("Data published to MQTT:", json_data)
+              print("TODO")
 
 
     except Exception as e:
