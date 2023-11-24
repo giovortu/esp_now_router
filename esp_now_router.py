@@ -15,7 +15,7 @@ formatted_time = datetime_object.strftime("%d/%m/%Y %H:%M:%S")
 
 print("Started at: ", formatted_time)
 
-url = "http://www.giovanniortu.it/tools/datalogger.php"
+url = "https://www.giovanniortu.it/tools/datalogger.php"
 headers = {"Content-Type": "application/json"}
 
 
