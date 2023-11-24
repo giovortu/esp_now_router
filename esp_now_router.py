@@ -81,7 +81,7 @@ while True:
               usb = str( json_data["usb"] ).lower()
 
               if url != "":
-                  response = requests.post(url, json=json_data )
+                  response = requests.post(url, json=clean_data, headers=headers )
                   print(response.text)
 
               USE_TOPIC = SENSORS_TOPIC + "/" + id
