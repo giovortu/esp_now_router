@@ -1,7 +1,7 @@
 import serial, os, json
 import paho.mqtt.client as mqtt
 from datetime import datetime
-
+import requests
 import time
 
 # Get the current epoch time in seconds
@@ -14,6 +14,10 @@ datetime_object = datetime.utcfromtimestamp(current_epoch_time)
 formatted_time = datetime_object.strftime("%d/%m/%Y %H:%M:%S")
 
 print("Started at: ", formatted_time)
+
+url = "http://www.giovanniortu.it/tools/datalogger.php"
+headers = {"Content-Type": "application/json"}
+
 
 def is_jetson_nano():
     return os.path.isfile('/etc/nv_tegra_release')
@@ -79,6 +83,8 @@ while True:
               charge = json_data["charge"]
               hum = json_data["hum"]
               usb = str( json_data["usb"] ).lower()
+
+              response = requests.post(url, data=json.dumps(json_data), headers=headers)
 
               if is_jetson_nano():
                   USE_TOPIC = SENSORS_TOPIC
