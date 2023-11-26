@@ -71,20 +71,34 @@ while True:
         if "type" in json_data:
            type = json_data["type"]
         if type == "agri":
+
+              USE_TOPIC = SENSORS_TOPIC + "/" + id
+
               temp = json_data["temp"]
               soil = json_data["soil"]
               lum  = json_data["lum"]
               batt_volt = json_data["bv"]
               batt_lvl = json_data["bl"]
               charge = json_data["charge"]
-              delta = json_data["delta"]
+              if  "delta" in json_data:
+                 delta = json_data["delta"]
+                 topic =  USE_TOPIC + "/delta"
+                 command = f"{{\"value\":{delta},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
+
+              if "hum" in json_data:
+                 hum = json_data["hum"]
+                 topic =  USE_TOPIC + "/humidity"
+                 command = f"{{\"value\":{hum},\"type\":\"humidity\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
+
+
               usb = str( json_data["usb"] ).lower()
 
               if url != "":
                   response = requests.post(url, json=json_data, headers=headers )
                   print(response.text)
 
-              USE_TOPIC = SENSORS_TOPIC + "/" + id
 
               topic =  USE_TOPIC + "/delta"
               command = f"{{\"value\":{delta},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
@@ -111,9 +125,6 @@ while True:
               command = f"{{\"value\":{batt_lvl},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
               mqtt_client.publish(topic, command )
 
-              topic =  USE_TOPIC + "/humidity"
-              command = f"{{\"value\":{hum},\"type\":\"humidity\",\"epoch\":{current_epoch_time}}}"
-              mqtt_client.publish(topic, command )
 
 
         else: #HOME ASSISTANT ONLY
