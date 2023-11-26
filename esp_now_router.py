@@ -33,9 +33,9 @@ def on_publish(client, userdata, mid):
     print(f"Message {mid} Published")
 
 # MQTT configuration & serial port configuration 
-mqtt_broker = "10.0.128.128"
-serial_port="/dev/ttyS0"
-SENSORS_TOPIC = "/ufficio28/acquario/sensors"
+mqtt_broker = "192.168.0.227"
+serial_port="/dev/ttyUSB0"
+SENSORS_TOPIC = "casaortu/sensors"
 
 baud_rate = 115200
 
@@ -77,7 +77,7 @@ while True:
               batt_volt = json_data["bv"]
               batt_lvl = json_data["bl"]
               charge = json_data["charge"]
-              hum = json_data["hum"]
+              delta = json_data["delta"]
               usb = str( json_data["usb"] ).lower()
 
               if url != "":
@@ -85,6 +85,11 @@ while True:
                   print(response.text)
 
               USE_TOPIC = SENSORS_TOPIC + "/" + id
+
+              topic =  USE_TOPIC + "/delta"
+              command = f"{{\"value\":{delta},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
+              mqtt_client.publish(topic, command )
+
 
               topic =  USE_TOPIC + "/is_battery_charging"
               command = f"{{\"value\":{usb},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
