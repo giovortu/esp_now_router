@@ -32,14 +32,14 @@ def on_publish(client, userdata, mid):
     print(f"Message {mid} Published")
 
 # MQTT configuration & serial port configuration 
-mqtt_broker = "192.168.0.227"
-serial_port="/dev/ttyUSB0"
-SENSORS_TOPIC = "casaortu/sensors"
-url = "https://www.giovanniortu.it/tools/datalogger.php"
-#mqtt_broker = "10.0.128.128"
-#serial_port="/dev/ttyS0"
-#SENSORS_TOPIC = "/ufficio28/acquario/sensors/"
-#url = ""
+#mqtt_broker = "192.168.0.227"
+#serial_port="/dev/ttyUSB0"
+#SENSORS_TOPIC = "casaortu/sensors"
+#url = "https://www.giovanniortu.it/tools/datalogger.php"
+mqtt_broker = "10.0.128.128"
+serial_port="/dev/ttyS0"
+SENSORS_TOPIC = "/ufficio28/acquario/sensors/"
+url = ""
 
 
 baud_rate = 115200
@@ -116,7 +116,7 @@ while True:
                  mqtt_client.publish(topic, command )
 
               if "bl" in json_data:
-                 lum  = json_data["bl"]
+                 batt_lvl  = json_data["bl"]
                  topic =  USE_TOPIC + "/battery_level"
                  command = f"{{\"value\":{batt_lvl},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
