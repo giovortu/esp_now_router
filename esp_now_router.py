@@ -38,7 +38,7 @@ def on_publish(client, userdata, mid):
 #url = "https://www.giovanniortu.it/tools/datalogger.php"
 mqtt_broker = "10.0.128.128"
 serial_port="/dev/ttyS0"
-SENSORS_TOPIC = "/ufficio28/acquario/sensors/"
+SENSORS_TOPIC = "/ufficio28/acquario/sensors"
 url = ""
 
 
@@ -128,7 +128,7 @@ while True:
                  mqtt_client.publish(topic, command )
 
               if "charge" in json_data:
-                 charge = json_data["charge"]
+                 charge = str( json_data["charge"] ).lower()
                  topic =  USE_TOPIC + "/is_charging"
                  command = f"{{\"value\":{charge},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
