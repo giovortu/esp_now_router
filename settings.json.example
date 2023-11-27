@@ -1,0 +1,7 @@
+{
+  "mqtt_broker": "10.0.128.128",
+  "serial_port": "/dev/ttyS0",
+  "baud_rate" : 115200,
+  "topic" : "/ufficio28/acquario/sensors",
+  "url" : ""
+}

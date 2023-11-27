@@ -31,28 +31,35 @@ def on_connect(client, userdata, flags, rc):
 def on_publish(client, userdata, mid):
     print(f"Message {mid} Published")
 
-# MQTT configuration & serial port configuration 
-#mqtt_broker = "192.168.0.227"
-#serial_port="/dev/ttyUSB0"
-#SENSORS_TOPIC = "casaortu/sensors"
-#url = "https://www.giovanniortu.it/tools/datalogger.php"
-mqtt_broker = "10.0.128.128"
-serial_port="/dev/ttyS0"
-SENSORS_TOPIC = "/ufficio28/acquario/sensors"
-url = ""
+# MQTT configuration & serial port configuration from settings
+
+# Get the directory of the current script
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the absolute path to the settings file
+settings_file_path = os.path.join(script_directory, 'settings.json')
+
+print("Reading settings from ", settings_file_path )
+
+with open(settings_file_path, 'r') as file:
+    settings = json.load(file)
 
 
-baud_rate = 115200
+mqtt_broker = settings["mqtt_broker"]
+serial_port= settings["serial_port"]
+baud_rate = settings["baud_rate"]
+sensor_topic = settings["topic"]
+url = settings["url"]
 
 # Create MQTT client
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
 #mqtt_client.on_publish = on_publish
+
 # Connect to MQTT Broker
 mqtt_client.connect(mqtt_broker, 1883, 60)
 mqtt_client.loop_start()
 
-mqtt_client.publish("LOG", "Connected" )
 # Open serial port
 ser = serial.Serial(serial_port, baud_rate)
 
@@ -77,59 +84,59 @@ while True:
            type = json_data["type"]
         if type == "agri":
 
-              USE_TOPIC = SENSORS_TOPIC + "/" + id
+              topic_id = sensor_topic + "/" + id
 
               if  "delta" in json_data:
                  delta = json_data["delta"]
-                 topic =  USE_TOPIC + "/delta"
+                 topic =  topic_id + "/delta"
                  command = f"{{\"value\":{delta},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
               if "hum" in json_data:
                  hum = json_data["hum"]
-                 topic =  USE_TOPIC + "/humidity"
+                 topic =  topic_id + "/humidity"
                  command = f"{{\"value\":{hum},\"type\":\"humidity\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
               if "usb" in json_data:
                  usb = str( json_data["usb"] ).lower()
-                 topic =  USE_TOPIC + "/is_battery_charging"
+                 topic =  topic_id + "/is_battery_charging"
                  command = f"{{\"value\":{usb},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
               if "lum" in json_data:
                  lum  = json_data["lum"]
-                 topic =  USE_TOPIC + "/luminosity"
+                 topic =  topic_id + "/luminosity"
                  command = f"{{\"value\":{lum},\"type\":\"luminosity\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
               if "temp" in json_data:
                  temp  = json_data["temp"]
-                 topic =  USE_TOPIC + "/temperature"
+                 topic =  topic_id + "/temperature"
                  command = f"{{\"value\":{temp},\"type\":\"temperature\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
               if "soil" in json_data:
                  soil  = json_data["soil"]
-                 topic =  USE_TOPIC + "/soil_moisture"
+                 topic =  topic_id + "/soil_moisture"
                  command = f"{{\"value\":{soil},\"type\":\"soil\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
               if "bl" in json_data:
                  batt_lvl  = json_data["bl"]
-                 topic =  USE_TOPIC + "/battery_level"
+                 topic =  topic_id + "/battery_level"
                  command = f"{{\"value\":{batt_lvl},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
               if "bv" in json_data:
                  batt_volt = json_data["bv"]
-                 topic =  USE_TOPIC + "/battery_voltage"
+                 topic =  topic_id + "/battery_voltage"
                  command = f"{{\"value\":{batt_volt},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
               if "charge" in json_data:
                  charge = str( json_data["charge"] ).lower()
-                 topic =  USE_TOPIC + "/is_charging"
+                 topic =  topic_id + "/is_charging"
                  command = f"{{\"value\":{charge},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
