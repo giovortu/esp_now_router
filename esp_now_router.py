@@ -15,7 +15,6 @@ formatted_time = datetime_object.strftime("%d/%m/%Y %H:%M:%S")
 
 print("Started at: ", formatted_time)
 
-url = "https://www.giovanniortu.it/tools/datalogger.php"
 headers = {"Content-Type": "application/json"}
 
 
@@ -36,6 +35,12 @@ def on_publish(client, userdata, mid):
 mqtt_broker = "192.168.0.227"
 serial_port="/dev/ttyUSB0"
 SENSORS_TOPIC = "casaortu/sensors"
+url = "https://www.giovanniortu.it/tools/datalogger.php"
+#mqtt_broker = "10.0.128.128"
+#serial_port="/dev/ttyS0"
+#SENSORS_TOPIC = "/ufficio28/acquario/sensors/"
+#url = ""
+
 
 baud_rate = 115200
 
@@ -74,12 +79,6 @@ while True:
 
               USE_TOPIC = SENSORS_TOPIC + "/" + id
 
-              temp = json_data["temp"]
-              soil = json_data["soil"]
-              lum  = json_data["lum"]
-              batt_volt = json_data["bv"]
-              batt_lvl = json_data["bl"]
-              charge = json_data["charge"]
               if  "delta" in json_data:
                  delta = json_data["delta"]
                  topic =  USE_TOPIC + "/delta"
@@ -92,39 +91,52 @@ while True:
                  command = f"{{\"value\":{hum},\"type\":\"humidity\",\"epoch\":{current_epoch_time}}}"
                  mqtt_client.publish(topic, command )
 
+              if "usb" in json_data:
+                 usb = str( json_data["usb"] ).lower()
+                 topic =  USE_TOPIC + "/is_battery_charging"
+                 command = f"{{\"value\":{usb},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
 
-              usb = str( json_data["usb"] ).lower()
+              if "lum" in json_data:
+                 lum  = json_data["lum"]
+                 topic =  USE_TOPIC + "/luminosity"
+                 command = f"{{\"value\":{lum},\"type\":\"luminosity\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
+
+              if "temp" in json_data:
+                 temp  = json_data["temp"]
+                 topic =  USE_TOPIC + "/temperature"
+                 command = f"{{\"value\":{temp},\"type\":\"temperature\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
+
+              if "soil" in json_data:
+                 soil  = json_data["soil"]
+                 topic =  USE_TOPIC + "/soil_moisture"
+                 command = f"{{\"value\":{soil},\"type\":\"soil\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
+
+              if "bl" in json_data:
+                 lum  = json_data["bl"]
+                 topic =  USE_TOPIC + "/battery_level"
+                 command = f"{{\"value\":{batt_lvl},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
+
+              if "bv" in json_data:
+                 batt_volt = json_data["bv"]
+                 topic =  USE_TOPIC + "/battery_voltage"
+                 command = f"{{\"value\":{batt_volt},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
+
+              if "charge" in json_data:
+                 charge = json_data["charge"]
+                 topic =  USE_TOPIC + "/is_charging"
+                 command = f"{{\"value\":{charge},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
+                 mqtt_client.publish(topic, command )
+
 
               if url != "":
                   response = requests.post(url, json=json_data, headers=headers )
                   print(response.text)
-
-
-              topic =  USE_TOPIC + "/delta"
-              command = f"{{\"value\":{delta},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
-              mqtt_client.publish(topic, command )
-
-
-              topic =  USE_TOPIC + "/is_battery_charging"
-              command = f"{{\"value\":{usb},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
-              mqtt_client.publish(topic, command )
-
-              topic =  USE_TOPIC + "/luminosity"
-              command = f"{{\"value\":{lum},\"type\":\"luminosity\",\"epoch\":{current_epoch_time}}}"
-              mqtt_client.publish(topic, command )
-
-              topic =  USE_TOPIC + "/temperature"
-              command = f"{{\"value\":{temp},\"type\":\"temperature\",\"epoch\":{current_epoch_time}}}"
-              mqtt_client.publish(topic, command )
-
-              topic =  USE_TOPIC + "/soil_moisture"
-              command = f"{{\"value\":{soil},\"type\":\"soil\",\"epoch\":{current_epoch_time}}}"
-              mqtt_client.publish(topic, command )
-
-              topic =  USE_TOPIC + "/battery_level"
-              command = f"{{\"value\":{batt_lvl},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
-              mqtt_client.publish(topic, command )
-
 
 
         else: #HOME ASSISTANT ONLY
