@@ -31,6 +31,12 @@ def on_connect(client, userdata, flags, rc):
 def on_publish(client, userdata, mid):
     print(f"Message {mid} Published")
 
+def find_object_by_id(json_array, target_id):
+    for obj in json_array:
+        if obj.get("id") == target_id:
+            return obj
+    return None    
+
 # MQTT configuration & serial port configuration from settings
 
 # Get the directory of the current script
@@ -38,6 +44,7 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the absolute path to the settings file
 settings_file_path = os.path.join(script_directory, 'settings.json')
+devices_file_path = os.path.join(script_directory, 'devices.json')
 
 print("Reading settings from ", settings_file_path )
 
@@ -51,6 +58,11 @@ baud_rate = settings["baud_rate"]
 sensor_topic = settings["topic"]
 url = settings["url"]
 
+with open(devices_file_path, 'r') as file:
+    devices = json.load(file)
+
+
+
 # Create MQTT client
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
@@ -63,6 +75,10 @@ mqtt_client.loop_start()
 # Open serial port
 ser = serial.Serial(serial_port, baud_rate)
 
+#device = find_object_by_id( devices, "3398534" )
+#print( devices )
+#print( device )
+#exit()
 
 while True:
     try:
@@ -78,10 +94,17 @@ while True:
         current_epoch_time = int(time.time())
         print("Current Epoch Time (in seconds):", current_epoch_time)
 
-        id = json_data["id"];
+        id = json_data["id"]
+
+        device = find_object_by_id( devices, id )
+        if device != None:
+            id = device.topic
+
         type="NONE"
+
         if "type" in json_data:
            type = json_data["type"]
+
         if type == "agri":
 
               topic_id = sensor_topic + "/" + id
