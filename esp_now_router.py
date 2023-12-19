@@ -104,7 +104,10 @@ while True:
 
         if interval > 0:
             ser.writelines( f"{{\"id\":\"{id}\",\"interval\":{interval}}}\n".encode() )
-            ser.flush()
+        else:
+            ser.writelines( f"OK".encode() )
+
+        ser.flush()
 
         type="NONE"
 
