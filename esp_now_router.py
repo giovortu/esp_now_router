@@ -102,11 +102,7 @@ while True:
             id = device.topic
             interval = device.interval
 
-        if interval > 0:
-            ser.writelines( f"{{\"id\":\"{id}\",\"interval\":{interval}}}\n".encode() )
-        else:
-            ser.writelines( f"OK".encode() )
-
+        ser.writelines( f"{{\"id\":\"{id}\",\"interval\":{interval}}}\n".encode() )
         ser.flush()
 
         type="NONE"
