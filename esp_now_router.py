@@ -95,10 +95,16 @@ while True:
         print("Current Epoch Time (in seconds):", current_epoch_time)
 
         id = json_data["id"]
+        interval = -1
 
         device = find_object_by_id( devices, id )
         if device != None:
             id = device.topic
+            interval = device.interval
+
+        if interval > 0:
+            ser.writelines( f"{{\"id\":\"{id}\",\"interval\":{interval}}}\n".encode() )
+            ser.flush()
 
         type="NONE"
 
