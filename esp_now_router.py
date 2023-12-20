@@ -58,11 +58,6 @@ baud_rate = settings["baud_rate"]
 sensor_topic = settings["topic"]
 url = settings["url"]
 
-with open(devices_file_path, 'r') as file:
-    devices = json.load(file)
-
-
-
 # Create MQTT client
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
@@ -75,18 +70,27 @@ mqtt_client.loop_start()
 # Open serial port
 ser = serial.Serial(serial_port, baud_rate)
 
-#device = find_object_by_id( devices, "3398534" )
-#print( devices )
-#print( device )
-#exit()
 
 while True:
     try:
         # Read JSON data from serial port
-        serial_data = ser.readline().decode('utf-8').strip()
-        clean_data = serial_data.replace('\r', '').replace('\n', '').replace("Received ","")
-        print( "Clean data" , clean_data )
+        raw_data = ser.readline().strip()
+        print( "Raw data :" , raw_data)
 
+        ser.flush()
+        devices =[]
+        # Read JSON data from devices file
+        with open(devices_file_path, 'r') as file:
+            devices = json.load(file)
+
+        print( "Devices :" , devices)
+
+        serial_data = raw_data.decode('utf-8').strip()
+        clean_data = serial_data.replace('\r', '').replace('\n', '').replace("Received ","")
+        print( "Clean data :" , clean_data )
+
+        interval = 60
+        
         # Parse JSON data
         json_data = json.loads( clean_data )
         command = ""
@@ -95,15 +99,22 @@ while True:
         print("Current Epoch Time (in seconds):", current_epoch_time)
 
         id = json_data["id"]
-        interval = -1
+        
 
         device = find_object_by_id( devices, id )
-        if device != None:
-            id = device.topic
-            interval = device.interval
+        if device != None:       
+            print( "Found device :", device)     
+            id = device["topic"]
+            interval = device["interval"]
+        
+        response = f"{{\"interval\":{interval}}}\n".encode()
 
-        ser.writelines( f"{{\"id\":\"{id}\",\"interval\":{interval}}}\n".encode() )
+        print( "Sending response :" , response )
+
+        ser.write( response )
         ser.flush()
+
+        print( "Response sent:" , response )
 
         type="NONE"
 
@@ -184,10 +195,12 @@ while True:
 
 
     except Exception as e:
-        if not isinstance(e, KeyboardInterrupt):
-            print(f"Error : {e}")
-        else:
+        if isinstance(e, KeyboardInterrupt):
+            print(f"Stop : {e}")
             break
+        else:
+            print(f"Error : {e}")
+            
 
 
 print("Exiting program.")
