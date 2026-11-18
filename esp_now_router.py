@@ -58,16 +58,32 @@ baud_rate = settings["baud_rate"]
 sensor_topic = settings["topic"]
 url = settings["url"]
 
-# Create MQTT client
+import os
+if os.path.exists( serial_port ):
+   port=serial_port
+elif os.path.exists("/dev/ttyUSB0"):
+  port = "/dev/ttyUSB0"
+elif os.path.exists("/dev/ttyUSB1"):
+  port = "/dev/ttyUSB1"
+else:
+  port = None  # Or raise an exception: raise FileNotFoundError("No USB serial device found")
+
+serial_port=port
+
+print(f"Selected port: {port}")
+
+
+
+print( "# Create MQTT client")
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
 #mqtt_client.on_publish = on_publish
 
-# Connect to MQTT Broker
+print("# Connect to MQTT Broker")
 mqtt_client.connect(mqtt_broker, 1883, 60)
 mqtt_client.loop_start()
 
-# Open serial port
+print("# Open serial port")
 ser = serial.Serial(serial_port, baud_rate)
 
 
@@ -129,55 +145,55 @@ while True:
                  delta = json_data["delta"]
                  topic =  topic_id + "/delta"
                  command = f"{{\"value\":{delta},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
               if "hum" in json_data:
                  hum = json_data["hum"]
                  topic =  topic_id + "/humidity"
                  command = f"{{\"value\":{hum},\"type\":\"humidity\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
               if "usb" in json_data:
                  usb = str( json_data["usb"] ).lower()
                  topic =  topic_id + "/is_battery_charging"
                  command = f"{{\"value\":{usb},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
               if "lum" in json_data:
                  lum  = json_data["lum"]
                  topic =  topic_id + "/luminosity"
                  command = f"{{\"value\":{lum},\"type\":\"luminosity\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
               if "temp" in json_data:
                  temp  = json_data["temp"]
                  topic =  topic_id + "/temperature"
                  command = f"{{\"value\":{temp},\"type\":\"temperature\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
               if "soil" in json_data:
                  soil  = json_data["soil"]
                  topic =  topic_id + "/soil_moisture"
                  command = f"{{\"value\":{soil},\"type\":\"soil\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
               if "bl" in json_data:
                  batt_lvl  = json_data["bl"]
                  topic =  topic_id + "/battery_level"
                  command = f"{{\"value\":{batt_lvl},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
               if "bv" in json_data:
                  batt_volt = json_data["bv"]
                  topic =  topic_id + "/battery_voltage"
                  command = f"{{\"value\":{batt_volt},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
               if "charge" in json_data:
                  charge = str( json_data["charge"] ).lower()
                  topic =  topic_id + "/is_charging"
                  command = f"{{\"value\":{charge},\"type\":\"status\",\"epoch\":{current_epoch_time}}}"
-                 mqtt_client.publish(topic, command )
+                 mqtt_client.publish(topic, command , retain=True)
 
 
               if url != "":
